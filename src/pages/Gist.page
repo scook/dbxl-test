@@ -1,0 +1,4 @@
+<apex:page standardController="Contact">
+<iframe width="725" height="300" src="https://gist.com/entities/find?source=salesforce&Name={!Contact.Name}&Email={!Contact.Email}&Phone={!Contact.Phone}&Website={!Contact.Account.Website}&Company={!Contact.Account.Name}&Contact%20ID={!Contact.Id}&Account:%20Phone={!Contact.Account.Phone}&Account:%20Fax={!Contact.Account.Fax}&Mailing%20Address%20Line%201={!Contact.MailingStreet}&Mailing%20Postal%20Code={!Contact.MailingPostalCode}&Mailing%20Sate={!Contact.MailingState}&Mailing%20Country={!Contact.MailingCountry}&Mailing%20City={!Contact.MailingCity}&Home%20Phone={!Contact.HomePhone} " name="gist" scrolling="auto" frameborder="no">
+</iframe>
+</apex:page>

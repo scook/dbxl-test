@@ -1,0 +1,15 @@
+<apex:page standardController="Case" extensions="QIEditSOWController"> 
+<script src="{!URLFOR($Resource.pymt__PaymentConnect, 'includes/tooltip/wz_tooltip.js')}"></script>
+<style>
+body { 
+   background:#f3f3ec;
+   }
+</style>
+<apex:form > 
+<ctnt:RichEditor value="{!Case.QI_Statement_of_Work__c}" height="300" />
+<apex:outputPanel layout="inline">
+<apex:commandButton action="{!saveRecord}" value="Save"/> 
+</apex:outputPanel>
+<apex:pageMessages />
+</apex:form>
+</apex:page>

@@ -1,0 +1,28 @@
+<apex:page standardController="Opportunity" tabStyle="Opportunity" extensions="QIEditTermsController" cache="false">
+<apex:form >
+<apex:sectionHeader title="Linvio Quotes and Invoices" subTitle="{!Opportunity.Name}"/>
+<apex:pageMessages id="messages" />
+<apex:pageBlock title="Terms and Conditions HTML Editor" >
+
+<p>Edit and save HTML content for your quote/invoice terms and conditions using the rich text editor below.  Click the "Maximize the editor size" button to expand the editor to a full page view (and to return to standard view).</p>
+<br/>
+<apex:inputHidden value="{!Opportunity.Publish_As_Quote__c}"/>
+<apex:inputHidden value="{!Opportunity.Publish_As_Invoice__c}"/>
+<ctnt:RichEditor height="500" value="{!Opportunity.QI_Terms_and_Conditions__c}"/>
+<apex:outputPanel layout="inline">
+<apex:commandButton value="Clear" action="{!clearTerms}"/>
+<apex:commandButton action="{!saveRecord}" value="Save"/>
+<apex:commandButton action="{!returnToOpportunity}" value="Return"/>
+<apex:outputPanel layout="none" rendered="{!hasContentItems}">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">HTML Snippets:</span>&nbsp;
+<apex:selectList value="{!selectedContentItem}" size="1" multiselect="false"> 
+	<apex:selectOptions value="{!contentOptions}"/>
+</apex:selectList> 
+<apex:inputCheckbox value="{!appendContent}"/>&nbsp;Append HTML to current content&nbsp;&nbsp;&nbsp;&nbsp;
+<apex:commandButton action="{!insertContent}" value="Insert Snippet"/>
+</apex:outputPanel>
+
+</apex:outputPanel>
+</apex:pageBlock>
+</apex:form>
+</apex:page>

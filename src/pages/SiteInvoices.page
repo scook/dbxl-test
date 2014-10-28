@@ -1,0 +1,46 @@
+<apex:page controller="SiteInvoicesController" showHeader="false" sidebar="false" cache="false" standardStylesheets="false">
+<title>Invoices</title>
+<style>
+.invoicesTable {
+	width:100%;
+	}
+	</style>
+<apex:composition template="{!$Site.Template}">
+  <apex:define name="body"  >
+     <div class="pc_page_content_top"></div>
+    <div class="pc_page_content" id="pc_qi_ptlinvoices_page">
+    <div class="pc_page_content_inner">
+    
+        <apex:sectionHeader title="Invoices"/>
+            <apex:form >
+            <apex:pageblock mode="maindetail">
+            <apex:pageBlockTable styleClass="invoicesTable" value="{!invoices}" var="invoice" >
+                <apex:column headerValue="Date" value="{!invoice.closeDate.ActivityDate}"/>
+                <apex:column headerValue="Name" value="{!invoice.name}"/>
+                <apex:column headerValue="Total Amount" styleClass="currency_column">
+                <apex:outputText value="{0,number,###,###,##0.00} {1}" >
+                	<apex:param value="{!invoice.totalAmount}"/>
+                	<apex:param value="{!invoice.currencyISOCode}"/>
+                </apex:outputText>
+                </apex:column>
+                <apex:column headerValue="Balance">
+                <apex:outputText value="{0,number,###,###,##0.00} {1}">
+                	<apex:param value="{!invoice.balance}"/>
+                	<apex:param value="{!invoice.currencyISOCode}"/>
+                </apex:outputText>
+                </apex:column>
+                <apex:column >
+                    <apex:commandLink value="View ({!invoice.recordId})" action="{!viewInvoice}">
+                        <apex:param name="invoiceId" id="invoiceId" value="{!invoice.recordId}" assignTo="{!selectedInvoiceId}"/>
+                    </apex:commandLink>
+                </apex:column>
+                
+            </apex:pageblockTable>
+            </apex:pageBlock>   
+        </apex:form>
+
+    </div><!--  pc_page_content_inner -->
+    </div><!--  pc_page_content --> 
+  </apex:define>
+  </apex:composition>
+</apex:page>

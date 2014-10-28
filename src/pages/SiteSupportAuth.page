@@ -1,0 +1,97 @@
+<apex:page controller="SiteSupportAuthController"  showHeader="false" sidebar="false" cache="false" standardStylesheets="false" >
+<style>
+
+.pc_opp_line_item_table {
+    width:100%;
+}
+
+.pc_quote_amount_box {
+    margin:2px;
+    padding:4px;
+    border: thin solid #e0e0e0;
+    width:250px;
+}
+
+</style>
+<script type="text/javascript" >
+</script>
+<title>{!$Organization.Name} Support Ticket Authorization</title>
+<apex:composition template="{!$Site.Template}">
+  <apex:define name="body">
+    <div class="pc_page_content_top"></div>
+    <div class="pc_page_content">
+    <div class="pc_page_content_inner">
+    
+    <apex:form id="checkoutForm" styleClass="pc_support_auth_review_form">
+
+            <apex:pageMessages />   
+            <apex:outputPanel id="quotebody" rendered="{!NOT(disableForm)}">
+            <h1>Support Ticket Authorization: {!caseRecord.subject}</h1>
+            Case Number: {!caseRecord.CaseNumber}
+            <br/><br/>
+            <h2>Account Information</h2>
+            <apex:outputPanel id="accountInfo" rendered="{!NOT(ISNULL(caseRecord.AccountId))}" >
+            <p>{!account.name}<br/>
+            {!account.billingstreet}<br/>
+            {!account.billingcity},&nbsp;
+            {!account.billingstate}&nbsp;{!account.billingpostalcode}<br/>
+            {!account.billingcountry}</p>
+            </apex:outputPanel> 
+            <h2>Primary Contact</h2>
+            <p>{!contact.name}<br/>
+            {!contact.mailingstreet}<br/>
+            {!contact.mailingcity},&nbsp;
+            {!contact.mailingstate}&nbsp;{!contact.mailingpostalcode}<br/>
+            {!contact.mailingcountry}</p> 
+            <apex:outputPanel id="description"  rendered="{!NOT(ISNULL(caseRecord.QI_Statement_of_Work__c))}" >
+            <h2>Description</h2>
+            <p>
+            <apex:outputtext styleClass="pc_quote_description" value="{!caseRecord.QI_Statement_of_Work__c}"  escape="false" />
+            </p>
+            </apex:outputPanel>
+            <br/>
+            <div class="pc_support_auth_amount_box" id="pc_support_auth_box">
+                <apex:outputPanel >
+                Authorization Amount: &nbsp;<apex:outputField value="{!caseRecord.QI_Authorization_Amount__c}" />
+                </apex:outputPanel>
+            </div> 
+            </apex:outputPanel>
+            <br />
+            <div class="pc_quote_expiration">
+            This authorization request expires:&nbsp; <apex:outputField value="{!caseRecord.QI_Quote_Expiration__c}" /> 
+            </div>
+        <apex:outputPanel id="buttons">
+            <table>
+                <tr>
+                    <td class="labelColumn">&nbsp;</td>
+                    <td><apex:commandButton id="cancel" value="Cancel"
+                        action="{!cancelTransaction}" onclick="" rendered="{!cancelURL <> null}"/>
+                        <apex:commandButton id="processCard" value="Authorize Online" status="formActionStatus"
+                        action="{!processAuthorization}" disabled="{!disableForm}" rerender="checkoutForm" />
+                    <apex:actionStatus id="formActionStatus">
+                        <apex:facet name="start">
+                            <apex:outputPanel >&nbsp;
+                                <apex:image value="{!URLFOR($Resource.pymt__PaymentConnect, 'images/icon-spinner.gif')}"
+                                    style="vertical-align:middle;" alt="" />
+                                    &nbsp;Processing...
+                            </apex:outputPanel>
+                        </apex:facet>
+                        <apex:facet name="stop">
+                            <apex:image value="{!URLFOR('/s.gif')}" alt="" style="height:17px;" /> 
+                        </apex:facet>
+                    </apex:actionStatus>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </apex:outputPanel>
+
+
+
+    </apex:form>
+    </div><!--  pc_page_content_inner -->
+    </div><!--  pc_page_content -->
+</apex:define>
+</apex:composition>  
+</apex:page>

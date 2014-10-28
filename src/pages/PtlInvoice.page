@@ -1,0 +1,286 @@
+<apex:page controller="PtlInvoiceController" tabStyle="pymt__PaymentX__c" cache="false" language="{!$CurrentPage.Parameters.lang}">
+<title>{!$Organization.Name} Invoice: {!opp.name}</title>
+<style>
+  td, th {
+    vertical-align:top;
+    text-align:left;
+  }
+  .pc_quote_amount_box { 
+    text-align:right;
+    width:100%;
+    border:none;
+  }
+  .pc_quote_amount_box labelCol {
+    font-weight:bold; 
+    text-align:right;
+    }  
+    
+  .totals_box {
+    margin-left:auto;
+    margin-right:5px;
+    width:250px;
+    
+  }
+
+.pc_opp_line_item_table {
+    width:100%;
+    
+} 
+.pc_opp_line_item_table td {
+    padding:2px;
+    vertical-align:top;
+    
+} 
+</style>
+
+
+    <div class="pc_page_content_top"></div>
+    <div class="pc_page_content" id="pc_qi_ptlinvoice_page">
+    <div class="pc_page_content_inner">
+
+<apex:sectionHeader title="Invoice"/>
+    <apex:form id="quoteApprovalForm" styleClass="pc_quote_review_form" onsubmit="return validateForm();">
+<apex:pageBlock id="invoicePageBlock" mode="maindetail">
+<script language="javascript">
+var enableValidation=false;
+function validateForm() {
+
+    if (!enableValidation) return true;
+    enableValidation=false;  
+ 
+    // check required fields
+    <apex:outputPanel layout="none" rendered="{!requireSignatory}">
+    var accept = document.getElementById("{!$Component.quoteApprovalForm.invoicePageBlock.acceptConditions}");
+    if (!accept.checked) {
+        alert("Please confirm that you accept the terms and conditions on this invoice.");
+        return false;
+    }
+    var sig = document.getElementById("{!$Component.quoteApprovalForm.invoicePageBlock.signature}");
+    if (sig.value == '') {
+        alert("Please enter your name in the signature box to accept the terms and conditions.");
+        return false;
+    }
+    </apex:outputPanel>
+
+    return true; 
+}
+</script>
+    <apex:pageMessages />   
+    <apex:outputPanel id="quotebody" rendered="{!NOT(disableForm)}">
+
+<table border="0" cellspacing="0" cellpadding="0" width="100%" id="table1">
+<tr>    <td style="width:45%;">
+        {!$Organization.Name}<br/>
+        {!$Organization.Street}<br/>
+        {!$Organization.PostalCode} {!$Organization.City}<br/>
+        {!$Organization.Country}<br/>
+        </td> 
+        <td width="10%">&nbsp;</td>
+    <td style="width:45%;text-align:right;">Invoice number: {!opp.invoiceNumber}<br/>
+        
+     </td>
+</tr>
+</table>
+<p>Description: {!opp.Name}</p>
+<br/>
+<h2>Customer Information</h2>
+
+<table border="0" width="100%" id="table2">
+<tr>
+       <td style="width:45%;" colspan="3">
+           Account Name: {!opp.Account.Name} <br/><br/>
+       </td>
+</tr>
+<tr>
+       <td>          
+           Billing Contact:<br/>
+                             {!contact.Name}<br/>
+                             {!contact.MailingStreet}<br/>
+                              {!contact.MailingCity}, {!contact.MailingState}&nbsp;
+                             {!contact.MailingPostalCode}&nbsp;{!contact.MailingCountry} 
+           
+        </td>
+        <td width="10%">&nbsp;</td>
+        <td style="width:45%;" >
+           Shipping Address:<br/>
+                              {!opp.Account.ShippingStreet}<br/>
+                              {!opp.Account.ShippingCity}, {!opp.Account.ShippingState}&nbsp;
+                              {!opp.Account.ShippingPostalCode}&nbsp;{!opp.Account.ShippingCountry} 
+           
+        </td>
+</tr>    
+</table>
+
+<p><apex:commandLink action="{!changeBillingInformation}" value="Change Billing Contact Info" rendered="{!opp.paidOff == false}" /></p>
+<apex:outputPanel rendered="{!enableBillingInfoEdit}" >
+
+<apex:panelGrid columns="2">
+<apex:outputText value="First Name"/> 
+<apex:inputText value="{!updatedContact.firstname}" />
+
+<apex:outputText value="Last Name"/>
+<apex:inputText value="{!updatedContact.lastname}"/>
+
+<apex:outputText value="Street"/>
+<apex:inputText value="{!updatedContact.mailingstreet}"/>
+
+<apex:outputText value="City"/>
+<apex:inputText value="{!updatedContact.mailingcity}"/>
+
+<apex:outputText value="State"/>
+<apex:inputText value="{!updatedContact.mailingstate}"/>
+
+<apex:outputText value="Postal Code"/>
+<apex:inputText value="{!updatedContact.mailingpostalcode}"/>
+
+<apex:outputText value="Country"/>
+<apex:inputText value="{!updatedContact.mailingcountry}"/>
+
+<apex:outputText value="Email"/>
+<apex:inputText value="{!updatedContact.email}"/>
+
+<apex:outputText value="Phone"/>
+<apex:inputText value="{!updatedContact.phone}"/>
+
+</apex:panelGrid>
+
+</apex:outputPanel>
+<br/>
+
+<apex:outputPanel rendered="{!(opp.hasLines)}">
+<h2>Products</h2>
+<table class="pc_opp_line_item_table">
+    <tr class="table_headings">
+           <th>Product</th>
+           <th>Description</th>
+           <th>Quantity</th>
+           <th class="currency_column">Unit Price</th>
+           <th class="currency_column">Total Price</th>
+    </tr>
+
+   <apex:repeat value="{!opp.lineItems}" var="line">
+      <tr>
+         <td>{!line.Name}</td>
+         <td>{!line.Description}</td> 
+         <td>{!line.Quantity}</td>
+         <td class="currency_column"><apex:OutputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!line.UnitPrice}"/></apex:OutputText></td>
+         <td class="currency_column"><apex:OutputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!line.total}"/></apex:OutputText></td>
+      </tr>
+   </apex:repeat>  
+
+</table>
+
+  <div class="pc_quote_amount_box" id="pc_quote_amount_box">
+            <apex:panelGrid columns="2" columnClasses="labelCol,currency_column" styleClass="totals_box" >
+                <apex:outputText value="Tax" rendered="{!NOT(OR(ISNULL(opp.tax),opp.tax==0))}"/>
+                <apex:outputText value="{0, number, ###,###,###,##0.00}" styleClass="taxAmount" rendered="{!NOT(OR(ISNULL(opp.tax),opp.tax==0))}"><apex:param value="{!opp.tax}" /></apex:outputText>
+                
+                <apex:outputText value="Shipping" rendered="{!NOT(OR(ISNULL(opp.shipping),opp.shipping==0))}"/>
+                <apex:outputText styleClass="shippingAmount" rendered="{!NOT(OR(ISNULL(opp.shipping),opp.shipping==0))}" value="{0, number, ###,###,###,##0.00}"><apex:param value="{!opp.shipping}" /></apex:outputText>
+                
+                <apex:outputText value="Total Amount"/>
+                <apex:outputText styleClass="totalAmount"  value="{0, number, ###,###,###,##0.00}"><apex:param value="{!opp.totalAmount}" /></apex:outputText>
+
+                <apex:outputText value="Balance Due"/>
+                <apex:outputText styleClass="totalAmount"  value="{0, number, ###,###,###,##0.00}"><apex:param value="{!opp.balance}" /></apex:outputText>
+                
+            </apex:panelGrid>   
+   </div>
+</apex:outputPanel>
+<apex:outputPanel rendered="{!NOT(opp.hasLines)}">
+<h2>Invoice Details</h2>
+<apex:outputText value="{!opp.description}"/><br/>
+  <div class="pc_quote_amount_box_no_line_items" id="pc_quote_amount_box_no_line_items">
+            <apex:panelGrid columns="2" columnClasses="labelCol,currency_column" styleClass="totals_box_no_line_items" >
+                <apex:outputText value="Invoice Amount" rendered="{!NOT(OR(ISNULL(opp.amount),opp.amount==0))}"/>
+                <apex:outputText styleClass="quoteAmount" value="{0, number, ###,###,###,##0.00}" rendered="{!NOT(OR(ISNULL(opp.amount),opp.amount==0))}"><apex:param value="{!opp.amount}"/></apex:outputText>
+                
+                <apex:outputText value="Tax" rendered="{!NOT(OR(ISNULL(opp.tax),opp.tax==0))}"/>
+                <apex:outputText styleClass="taxAmount" value="{0, number, ###,###,###,##0.00}" rendered="{!NOT(OR(ISNULL(opp.tax),opp.tax==0))}"><apex:param value="{!opp.tax}"/></apex:outputText>
+                
+                <apex:outputText value="Shipping" rendered="{!NOT(OR(ISNULL(opp.shipping),opp.shipping==0))}"/>
+                <apex:outputText styleClass="shippingAmount" value="{0, number, ###,###,###,##0.00}" rendered="{!NOT(OR(ISNULL(opp.shipping),opp.shipping==0))}"><apex:param value="{!opp.shipping}"/></apex:outputText>
+                
+                <apex:outputText value="Total Amount"/>
+                <apex:outputText styleClass="totalAmount" value="{0, number, ###,###,###,##0.00}"><apex:param value="{!opp.totalAmount}"/></apex:outputText>
+                
+            </apex:panelGrid>   
+   </div>
+
+</apex:outputPanel>      
+<br/>
+<h2>Terms and Conditions</h2>
+        
+            <apex:outputPanel rendered="{!hasRecurringAmount}" >          
+            
+               
+               <apex:outputText value="Installment Payments:" rendered="{!recurringSetup = 'Installment'}"/>
+               <apex:outputText value="Additional recurring charges:" rendered="{!recurringSetup = 'RecurringTackedOn'}"/>
+               <apex:outputPanel layout="inline" rendered="{!recurringSetup = 'FirstRecurringIncluded'}"  >     
+                   <apex:outputText value="Total includes initial recurring charge of " />
+                   <apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!opp.recurringAmount}"/></apex:outputText><br/>
+                   <apex:outputText value="Recurring payment terms:"/>
+               </apex:outputPanel>
+                &nbsp;
+                <apex:outputText value="{0, number, ###,###,###,##0.00}"><apex:param value="{!opp.recurringAmount}"/></apex:outputText>
+                every {!opp.frequency} {!opp.period} {!IF(NOT(ISNULL(opp.occurrences)), "x "+TEXT(opp.occurrences),"")}
+          
+            </apex:outputPanel>
+                
+<br/>
+<apex:outputText value="{!Opp.Conditions}" escape="false" />
+<br/>
+ 
+<apex:outputPanel layout="none" id="conditionsPanel" rendered="{!Opp.paidOff == false}">
+<p><apex:inputCheckbox id="acceptConditions" value="{!termsAccepted}" />I accept the terms and conditions above.</p>
+<table class="signatureTable">
+<tr>
+<td>
+Your Name
+</td>
+<td>
+<apex:inputText id="signature" value="{!signature}"/>
+</td>
+</tr>
+</table>            
+    <br/>       
+        <apex:outputPanel id="buttons">
+            <table>
+                <tr>
+                    <td class="labelColumn">&nbsp;</td>
+                    <td><apex:commandButton id="cancel" value="Cancel"
+                        action="{!cancelTransaction}" rendered="false"/>
+                        <apex:commandButton id="processCard" value="Accept and Pay Online" status="formActionStatus"
+                        action="{!processQuote}" disabled="{!disableForm}" rerender="quoteApprovalForm"  onclick="enableValidation=true;">
+                        </apex:commandButton>
+                    <apex:actionStatus id="formActionStatus">
+                        <apex:facet name="start">
+                            <apex:outputPanel >&nbsp;
+                                <apex:image value="{!URLFOR($Resource.pymt__PaymentConnect, 'images/icon-spinner.gif')}"
+                                    style="vertical-align:middle;" alt="" />
+                                    &nbsp;Processing...
+                            </apex:outputPanel>
+                        </apex:facet>
+                        <apex:facet name="stop">
+                            <apex:image value="{!URLFOR('/s.gif')}" alt="" style="height:17px;" /> 
+                        </apex:facet>
+                    </apex:actionStatus>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            
+        </apex:outputPanel>
+
+    </apex:outputPanel>
+</apex:outputPanel>   
+
+    </apex:pageBlock>
+    </apex:form>
+    
+    </div><!--  pc_page_content_inner -->
+    </div><!--  pc_page_content -->
+
+
+</apex:page>

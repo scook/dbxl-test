@@ -1,0 +1,27 @@
+<apex:page standardController="Opportunity" extensions="QIEditTermsController">
+<script src="{!URLFOR($Resource.pymt__PaymentConnect, 'includes/tooltip/wz_tooltip.js')}"></script>
+<style>
+body { 
+   background:#f3f3ec;
+   }
+</style>
+<apex:form > 
+<apex:inputHidden value="{!Opportunity.Publish_As_Quote__c}"/>
+<apex:inputHidden value="{!Opportunity.Publish_As_Invoice__c}"/>
+<ctnt:RichEditor value="{!Opportunity.QI_Terms_and_Conditions__c}" height="300" />
+<apex:outputPanel layout="inline">
+<apex:commandButton value="Clear" action="{!clearTerms}"/>
+<apex:commandButton action="{!saveRecord}" value="Save"/>
+<apex:outputPanel layout="none" rendered="{!hasContentItems}">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">HTML Snippets:</span>&nbsp;
+<apex:selectList value="{!selectedContentItem}" size="1" multiselect="false"> 
+	<apex:selectOptions value="{!contentOptions}"/>
+</apex:selectList> 
+<apex:inputCheckbox value="{!appendContent}"/>&nbsp;Append HTML to current content&nbsp;&nbsp;&nbsp;&nbsp;
+<apex:commandButton action="{!insertContent}" value="Insert Snippet"/>
+</apex:outputPanel>
+
+</apex:outputPanel>
+<apex:pageMessages />
+</apex:form>
+</apex:page>

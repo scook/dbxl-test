@@ -1,0 +1,48 @@
+<apex:page controller="PtlPaymentsController"  >
+
+    <div class="pc_page_content_top"></div>
+    <div class="pc_page_content" id="pc_qi_ptlpayments_page">
+    <div class="pc_page_content_inner">
+    
+        <apex:sectionHeader subtitle="Recent Payments"/>
+            <apex:form >
+            <apex:pageblock mode="maindetail" >
+            <apex:pageMessage summary="No recent payments found." severity="info" strength="1" rendered="{!(numberOfPayments == 0)}"/>
+            
+            <apex:pageBlockTable value="{!payments}" var="payment" rendered="{!(numberOfPayments >0)}">
+                <apex:column headerValue="Date" value="{!payment.pymt__Date__c}"/>
+                <apex:column headerValue="Name" value="{!payment.name}"/>
+                <apex:column headerValue="Amount" value="{!payment.pymt__Amount__c}"/>
+                <apex:column headerValue="Status" value="{!payment.pymt__Status__c}"/>
+                
+            </apex:pageblockTable>
+            </apex:pageBlock>   
+        </apex:form>
+
+        <apex:outputPanel rendered="{!(numberOfSchedPayments >0)}">
+        <apex:sectionHeader subtitle="Scheduled Payments"/>
+            <apex:form >
+            <apex:pageblock mode="maindetail">
+            <apex:pageBlockTable value="{!scheduledPayments}" var="payment" >
+                <apex:column headerValue="Scheduled Date">
+                 <apex:outputField value="{!payment.pymt__Scheduled_Payment_Date__c}" rendered="{!payment.pymt__Status__c = 'Scheduled'}"/>
+                 </apex:column>
+                <apex:column headerValue="Date Attempted" value="{!payment.pymt__Date__c}"/>
+                <apex:column headerValue="Name" value="{!payment.name}"/>
+                <apex:column headerValue="Amount" value="{!payment.pymt__Amount__c}"/>
+                <apex:column headerValue="Status" value="{!payment.pymt__Status__c}"/>
+                <apex:column >
+                    <apex:commandLink value="Pay Online" action="{!viewPtlCheckout}" rendered="{!payment.pymt__Status__c == 'Scheduled'}">
+                        <apex:param name="paymentId" id="paymentId" value="{!payment.Id}" assignTo="{!selectedPaymentId}"/>
+                    </apex:commandLink>
+                </apex:column>
+                
+            </apex:pageblockTable>
+            </apex:pageBlock>   
+        </apex:form>
+        </apex:outputPanel>
+        
+    </div><!--  pc_page_content_inner -->
+    </div><!--  pc_page_content -->
+        
+</apex:page>

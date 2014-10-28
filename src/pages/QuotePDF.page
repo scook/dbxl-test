@@ -1,0 +1,183 @@
+<apex:page standardController="Opportunity" showHeader="false" renderas="pdf" cache="false" standardStyleSheets="false" >
+<apex:stylesheet value="{!URLFOR($Resource.QuotesAndInvoices, '/quotePDFStyle.css')}"/>
+<div class="quoteBody">
+<table border="0" cellspacing="0" cellpadding="0" width="100%" id="table1">
+<tr>
+    <td>
+        <img src='{!URLFOR($Resource.CompanyLogo)}' title="logo" />
+    </td>
+    <td align="right"><span class="quoteHeading">Quotation</span><br/>
+    </td>
+    
+    
+</tr>
+</table>
+
+<hr/>
+
+<table border="0" cellspacing="0" cellpadding="0" width="100%" id="table1">
+<tr>    <td style="width:45%;"><font face="Arial" >
+        <b>{!$Organization.Name}</b><br/>
+        {!$Organization.Street}<br/>
+        {!$Organization.PostalCode} {!$Organization.City}<br/>
+        {!$Organization.Country}<br/>
+        </font></td> 
+        <td width="10%">&nbsp;</td>
+   <td style="width:45%;">
+
+        <table class="date_table" >
+        <tr><td style="border-bottom:2px white solid;padding:4px;">
+                <apex:outputLabel value="Date:" />
+        </td><td style="text-align:right;border-bottom:2px white solid;padding:4px;">
+                <apex:outputText value="{!MONTH(TODAY())}/{!DAY(TODAY())}/{!YEAR(TODAY())}" />
+        </td></tr>
+        <tr><td style="border-bottom:2px white solid;padding:4px;">
+                <apex:outputLabel value="Expires:" />
+        </td><td style="text-align:right;border-bottom:2px white solid;padding:4px;">
+                <apex:outputField value="{!Opportunity.pymt__SiteQuote_Expiration__c}" />
+        </td></tr>
+        <tr><td style="border-bottom:2px white solid;padding:4px;">
+                <apex:outputLabel value="Quote #:"/>
+        </td><td style="text-align:right;border-bottom:2px white solid;padding:4px;">
+                <apex:outputPanel >
+                {!Opportunity.Quote_Number__c}<apex:outputText rendered="{!Opportunity.Quote_Version__c <> null}">-</apex:outputText><apex:outputField value="{!Opportunity.Quote_Version__c}"/>
+                </apex:outputPanel>
+        </td></tr>
+        </table>                
+                
+                    
+     </td>
+</tr>
+</table>
+<br/>
+<h2>Prepared For:</h2>
+
+<table border="0" width="100%" id="table2">
+<tr>
+       <td style="width:45%;" colspan="3">
+           <font face="Arial">{!Opportunity.Account.Name} <br/><br/></font>
+       </td>
+</tr>
+<tr>
+       <td>          
+           <font face="Arial">Billing Address:<br/>
+                             {!Opportunity.Account.BillingStreet}<br/>
+                              {!Opportunity.Account.BillingCity}, {!Opportunity.Account.BillingState}&nbsp;
+                             {!Opportunity.Account.BillingPostalCode} 
+           </font>
+        </td>
+        <td width="10%">&nbsp;</td>
+        <td style="width:45%;" >
+           <font face="Arial">Shipping Address:<br/>
+                              {!Opportunity.Account.ShippingStreet}<br/>
+                              {!Opportunity.Account.ShippingCity}, {!Opportunity.Account.ShippingState}&nbsp;
+                              {!Opportunity.Account.ShippingPostalCode}  
+           </font>
+        </td>
+</tr>    
+</table>
+<br/>
+<table style="border-collapse:collapse;" width="100%" id="line_item_table">
+<tr>
+       <th>Product</th>
+       <th>Description</th>
+       <th>Quantity</th>
+       <th  class="currency_column">Unit Price</th>
+       <th  class="currency_column">Total Price</th>
+</tr>
+<tr>
+       <apex:repeat value="{!Opportunity.OpportunityLineItems}" var="line">
+          <tr>
+             <td>{!line.PricebookEntry.Name}</td>
+             <td>{!line.Description}</td>
+             <td>{!line.Quantity}</td>
+             <td class="currency_column"><apex:OutputField value="{!line.UnitPrice}"/></td>
+             <td  class="currency_column"><apex:OutputField value="{!line.TotalPrice}"/></td>
+          </tr>
+       </apex:repeat>  
+</tr>
+</table>
+            <apex:panelGrid columns="2" columnClasses="labelCol, currency_column" styleClass="totals_box" >
+                <apex:outputLabel value="Tax" rendered="{!NOT(OR(ISNULL(opportunity.pymt__Tax__c),opportunity.pymt__Tax__c==0))}"/>
+                <apex:outputField value="{!opportunity.pymt__Tax__c}" styleClass="taxAmount" rendered="{!NOT(OR(ISNULL(opportunity.pymt__Tax__c),opportunity.pymt__Tax__c==0))}"/>
+                
+                <apex:outputLabel value="Shipping" rendered="{!NOT(OR(ISNULL(opportunity.pymt__Shipping__c),opportunity.pymt__Shipping__c==0))}"/>
+                <apex:outputField value="{!opportunity.pymt__Shipping__c}" styleClass="shippingAmount" rendered="{!NOT(OR(ISNULL(opportunity.pymt__Shipping__c),opportunity.pymt__Shipping__c==0))}"/>
+                
+                <apex:outputLabel value="Total Amount"/>
+                <apex:outputField styleClass="totalAmount" value="{!opportunity.pymt__Total_Amount__c}" />
+                
+            </apex:panelGrid>   
+<br/>
+<h2>Terms and Conditions</h2>
+<table border="0" width="100%" id="table3">
+<tr>
+        <td style="width:30%;vertical-align:top"><font face="Arial">
+        
+              Expiration Date:&nbsp;<apex:OutputField value="{!Opportunity.pymt__SiteQuote_Expiration__c}"/><br/>
+            </font>
+        </td>
+        <td width="10%">&nbsp;</td>
+        <td style="width:60%;vertical-align:top"><font face="Arial">
+            <apex:outputPanel rendered="{!NOT(ISNULL(Opportunity.pymt__Frequency__c))}" >          
+            
+               
+               <apex:outputText value="Installment Payments:" rendered="{!Opportunity.pymt__SiteQuote_Recurring_Setup__c = 'Recurring Payments = Total Amount'}"/>
+               <apex:outputText value="Additional recurring charges:" rendered="{!Opportunity.pymt__SiteQuote_Recurring_Setup__c = 'Total Amount + Recurring Payments'}"/>
+               <apex:outputPanel layout="inline" rendered="{!Opportunity.pymt__SiteQuote_Recurring_Setup__c = 'Total Amount Includes First Recurring Payment'}"  >     
+                   <apex:outputText value="Total includes initial recurring charge of " />
+                   <apex:outputField value="{!opportunity.pymt__Recurring_Amount__c}"/><br/>
+                   <apex:outputText value="Recurring payment terms:"/>
+               </apex:outputPanel>
+                &nbsp;
+                <apex:outputField value="{!opportunity.pymt__Recurring_Amount__c}"/>
+                every {!opportunity.pymt__Frequency__c} {!opportunity.pymt__Period__c} {!IF(NOT(ISNULL(opportunity.pymt__Occurrences__c)), "x "+TEXT(opportunity.pymt__Occurrences__c),"")}
+          
+                </apex:outputPanel>
+            </font>
+       </td>
+</tr>
+</table>
+<br/>
+<apex:outputText value="{!Opportunity.QI_Terms_and_Conditions__c}" escape="false" />
+<br/>
+<apex:outputPanel rendered="true">
+<p>Accept and pay online: <a style="border:0 none;" href="{!Opportunity.Quote_Approval_URL__c}">Click Here</a></p>
+<p><em>Or print and sign below to accept the terms of this quotation and return with your payment.</em> </p>
+<table width="50%" id="table5">
+<tr>
+   <td colspan="2"><b>{!Opportunity.Account.Name}</b></td>
+</tr>
+<tr>
+   <td width="50%">&nbsp;</td> 
+   <td width="50%">&nbsp;</td>
+</tr>
+<tr>
+   <td width="50%" style="text-align:right;">Signature</td>
+   <td width="50%">_____________________________________</td>
+</tr>
+<tr>
+   <td width="50%" style="text-align:right;">Name</td>
+   <td width="50%">_____________________________________</td>
+</tr>
+<tr>
+   <td width="50%" style="text-align:right;">Title</td>
+   <td width="50%">_____________________________________</td>
+</tr>
+<tr>
+   <td width="50%" style="text-align:right;">Date</td>
+   <td width="50%">_____________________________________</td>
+</tr>
+</table>
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!$CurrentPage.Parameters.accepted == 'true'}">
+<p style="font-weight:bold;color:red;"><img id="signatureIcon" src="{!URLFOR($Resource.QuotesAndInvoices, '/signatureIcon.jpg')}"/> Quote accepted by {!$CurrentPage.Parameters.signature} at {!NOW()} from IP address {!$CurrentPage.Parameters.ip}.</p>
+</apex:outputPanel>
+
+<p>&nbsp;</p>
+<hr/>
+<p align="center"><span style="font-family:Arial;"><i>Copyright {!$Organization.Name}</i></span></p>
+</div>
+
+</apex:page>
