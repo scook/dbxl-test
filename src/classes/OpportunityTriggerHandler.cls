@@ -222,7 +222,7 @@ public with sharing class OpportunityTriggerHandler extends TriggerBase {
                     p_contactRoleMap.put(i, new Map<String, OpportunityContactRole>());
                 }
                 for (OpportunityContactRole c : contactRoles) {
-                    String normalized =  '';
+                    String normalized =  c.Role.toLowerCase().trim();
                     if(c.Role <> null) {
                         c.Role.toLowerCase().trim();
                     }
